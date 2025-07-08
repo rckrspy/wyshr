@@ -26,7 +26,10 @@
       "Bash(# Move business and strategy docs\nmv Way-Share-Business-Strategy.md docs/\nmv Way-Share-Product-Specification.md docs/\nmv Way-Share-MVP-Definition.md docs/\n\n# Move technical docs  \nmv Way-Share-Technical-Guide.md docs/architecture/\nmv Way-Share-Development-Plan.md docs/development/\n\n# Move deployment docs\nmv DEPLOYMENT-ISSUES-TRACKER.md docs/deployment/\nmv ENHANCED-INCIDENT-TYPES-IMPLEMENTATION.md docs/deployment/\n\n# Archive completed development docs\nmkdir -p docs/archive/\nmv ENHANCED-INCIDENT-TYPES-PLAN.md docs/archive/\nmv MAPBOX-CONSOLE-ERRORS-FIX-PLAN.md docs/archive/\nmv DOCUMENTATION-STRUCTURE.md docs/archive/)",
       "Bash(git init:*)",
       "Bash(gh repo create:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
