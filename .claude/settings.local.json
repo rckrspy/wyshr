@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude update)",
+      "Bash(pdftotext:*)",
+      "Bash(find:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(timeout 5 npm run dev)",
+      "Bash(ls:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(sudo chown:*)",
+      "Bash(tsc:*)",
+      "Bash(npx tsc:*)",
+      "Bash(sudo npm install:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker:*)",
+      "Bash(grep:*)",
+      "Bash(npx typescript:*)",
+      "Bash(kill:*)",
+      "Bash(curl:*)",
+      "Bash(# Move business and strategy docs\nmv Way-Share-Business-Strategy.md docs/\nmv Way-Share-Product-Specification.md docs/\nmv Way-Share-MVP-Definition.md docs/\n\n# Move technical docs  \nmv Way-Share-Technical-Guide.md docs/architecture/\nmv Way-Share-Development-Plan.md docs/development/\n\n# Move deployment docs\nmv DEPLOYMENT-ISSUES-TRACKER.md docs/deployment/\nmv ENHANCED-INCIDENT-TYPES-IMPLEMENTATION.md docs/deployment/\n\n# Archive completed development docs\nmkdir -p docs/archive/\nmv ENHANCED-INCIDENT-TYPES-PLAN.md docs/archive/\nmv MAPBOX-CONSOLE-ERRORS-FIX-PLAN.md docs/archive/\nmv DOCUMENTATION-STRUCTURE.md docs/archive/)",
+      "Bash(git init:*)",
+      "Bash(gh repo create:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

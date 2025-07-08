@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with PostGIS
+  postgres:
+    image: postgis/postgis:14-3.2
+    container_name: wayshare-postgres
+    environment:
+      POSTGRES_DB: wayshare
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./database/migrations/:/docker-entrypoint-initdb.d/migrations/
+    ports:
+      - "5432:5432"
+    networks:
+      - wayshare-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: wayshare-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - wayshare-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build: 
+      context: ./way-share-backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: wayshare-backend
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      DB_PORT: 5432
+      DB_NAME: wayshare
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/wayshare
+      PGSSL: false
+      JWT_SECRET: wayshare-production-jwt-secret-2024
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "3001:3001"
+    networks:
+      - wayshare-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Frontend
+  frontend:
+    build:
+      context: ./way-share-frontend
+      dockerfile: Dockerfile
+    container_name: wayshare-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - wayshare-network
+    depends_on:
+      - backend
+
+networks:
+  wayshare-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
