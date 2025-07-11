@@ -38,7 +38,7 @@ class Database {
     }
   }
 
-  async query<T = any>(text: string, params?: any[]): Promise<T[]> {
+  async query<T = unknown>(text: string, params?: unknown[]): Promise<T[]> {
     const start = Date.now();
     try {
       const result = await this.pool.query(text, params);
@@ -55,8 +55,8 @@ class Database {
     }
   }
 
-  async transaction<T = any>(
-    callback: (client: any) => Promise<T>
+  async transaction<T = unknown>(
+    callback: (client: import('pg').PoolClient) => Promise<T>
   ): Promise<T> {
     const client = await this.pool.connect();
     try {
@@ -79,7 +79,7 @@ class Database {
         status: 'healthy',
         timestamp: result[0].now,
       };
-    } catch (error) {
+    } catch {
       return {
         status: 'unhealthy',
         timestamp: new Date(),
@@ -102,3 +102,5 @@ class Database {
 }
 
 export const db = new Database();
+export const pool = db.getPool();
+export default pool;

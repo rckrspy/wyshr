@@ -1,1 +1,0 @@
-{"root":["./src/index.ts","./src/config/config.ts","./src/controllers/heatmapcontroller.ts","./src/controllers/reportcontroller.ts","./src/middleware/errorhandler.ts","./src/middleware/validation.ts","./src/routes/heatmaproutes.ts","./src/routes/reportroutes.ts","./src/types/index.ts","./src/utils/anonymization.ts"],"version":"5.8.3"}

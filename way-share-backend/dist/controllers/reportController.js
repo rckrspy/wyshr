@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getReportsNearLocation = exports.getReportById = exports.getRecentReports = exports.submitReport = void 0;
 const reportService_1 = require("../services/reportService");
+// import { incidentService } from '../services/incidentService'; // Removed - not part of Phase 2
 const anonymization_1 = require("../utils/anonymization");
 const submitReport = async (req, res, next) => {
     try {

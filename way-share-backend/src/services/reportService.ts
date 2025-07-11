@@ -1,6 +1,22 @@
 import { db } from './database';
-import { Report, CreateReportDto } from '../types';
+import { Report, CreateReportDto, IncidentType } from '../types';
 import { AnonymizationService } from '../utils/anonymization';
+
+interface ReportRow {
+  id: string;
+  session_id: string;
+  license_plate_hash?: string;
+  incident_type: string;
+  subcategory?: string;
+  longitude: number;
+  latitude: number;
+  description?: string;
+  media_url?: string;
+  city: string;
+  state: string;
+  created_at: Date;
+  distance?: number;
+}
 
 export class ReportService {
   async createReport(data: CreateReportDto): Promise<Report> {
@@ -50,14 +66,14 @@ export class ReportService {
       data.state || 'CA',
     ];
 
-    const rows = await db.query<any>(query, values);
+    const rows = await db.query<ReportRow>(query, values);
     const row = rows[0];
 
     return {
       id: row.id,
       sessionId: row.session_id,
       licensePlate: '[REDACTED]',
-      incidentType: row.incident_type,
+      incidentType: row.incident_type as IncidentType,
       latitude: row.latitude,
       longitude: row.longitude,
       description: row.description,
@@ -86,13 +102,13 @@ export class ReportService {
       LIMIT $1
     `;
 
-    const rows = await db.query<any>(query, [limit]);
+    const rows = await db.query<ReportRow>(query, [limit]);
 
-    return rows.map((row) => ({
+    return rows.map((row): Report => ({
       id: row.id,
       sessionId: row.session_id,
       licensePlate: '[REDACTED]',
-      incidentType: row.incident_type,
+      incidentType: row.incident_type as IncidentType,
       latitude: row.latitude,
       longitude: row.longitude,
       description: row.description,
@@ -120,7 +136,7 @@ export class ReportService {
       WHERE id = $1
     `;
 
-    const rows = await db.query<any>(query, [id]);
+    const rows = await db.query<ReportRow>(query, [id]);
 
     if (rows.length === 0) {
       return null;
@@ -131,7 +147,7 @@ export class ReportService {
       id: row.id,
       sessionId: row.session_id,
       licensePlate: '[REDACTED]',
-      incidentType: row.incident_type,
+      incidentType: row.incident_type as IncidentType,
       latitude: row.latitude,
       longitude: row.longitude,
       description: row.description,
@@ -162,13 +178,13 @@ export class ReportService {
       ORDER BY created_at DESC
     `;
 
-    const rows = await db.query<any>(query, [hashedPlate]);
+    const rows = await db.query<ReportRow>(query, [hashedPlate]);
 
-    return rows.map((row) => ({
+    return rows.map((row): Report => ({
       id: row.id,
       sessionId: row.session_id,
       licensePlate: '[REDACTED]',
-      incidentType: row.incident_type,
+      incidentType: row.incident_type as IncidentType,
       latitude: row.latitude,
       longitude: row.longitude,
       description: row.description,
@@ -207,13 +223,13 @@ export class ReportService {
       LIMIT 100
     `;
 
-    const rows = await db.query<any>(query, [latitude, longitude, radiusMeters]);
+    const rows = await db.query<ReportRow>(query, [latitude, longitude, radiusMeters]);
 
-    return rows.map((row) => ({
+    return rows.map((row): Report => ({
       id: row.id,
       sessionId: row.session_id,
       licensePlate: '[REDACTED]',
-      incidentType: row.incident_type,
+      incidentType: row.incident_type as IncidentType,
       latitude: row.latitude,
       longitude: row.longitude,
       description: row.description,

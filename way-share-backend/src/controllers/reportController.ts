@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse, CreateReportDto } from '../types';
 import { reportService } from '../services/reportService';
+// import { incidentService } from '../services/incidentService'; // Removed - not part of Phase 2
 import { AnonymizationService } from '../utils/anonymization';
 
 export const submitReport = async (

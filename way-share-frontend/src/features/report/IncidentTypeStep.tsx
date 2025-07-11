@@ -10,8 +10,12 @@ const IncidentTypeStep: React.FC = () => {
   const dispatch = useAppDispatch();
   const { selectedCategory } = useAppSelector((state) => state.report);
 
-  const handleCategorySelect = (category: 'vehicle' | 'location') => {
-    dispatch(setSelectedCategory(category));
+  const handleCategorySelect = (category: 'vehicle' | 'location' | null) => {
+    if (category === null) {
+      dispatch(setSelectedCategory(null));
+    } else {
+      dispatch(setSelectedCategory(category));
+    }
   };
 
   const handleTypeSelect = (type: IncidentType) => {
@@ -26,7 +30,12 @@ const IncidentTypeStep: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '400px' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      flexGrow: 1, 
+      minHeight: 0 
+    }}>
       <IncidentTypeSelector
         selectedCategory={selectedCategory}
         onSelectCategory={handleCategorySelect}

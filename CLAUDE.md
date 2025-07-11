@@ -4,21 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Way-Share is a privacy-first Progressive Web Application for anonymous traffic incident reporting. The system uses a dual-track reporting architecture where vehicle-specific incidents require license plates while location-based hazards do not, implemented with complete data anonymization.
+Way-Share is a privacy-first Progressive Web Application for traffic incident reporting with comprehensive user authentication. The system has evolved from anonymous reporting to a full-featured platform with user accounts, identity verification, driver scoring, and rewards marketplace. It uses a dual-track reporting architecture where vehicle-specific incidents require license plates while location-based hazards do not, implemented with complete data anonymization.
 
 ## Architecture
 
 ### High-Level Structure
 - **Frontend**: React 18 + TypeScript PWA with Material-UI and Redux Toolkit
-- **Backend**: Node.js/Express TypeScript API with comprehensive validation
+- **Backend**: Node.js/Express TypeScript API with comprehensive validation and rate limiting
 - **Database**: PostgreSQL 14 with PostGIS for geospatial data and privacy-preserving coordinate rounding
-- **Deployment**: Docker containerized microservices with multi-stage builds
+- **Authentication**: JWT-based authentication with refresh tokens and email verification
+- **Identity Verification**: Stripe Identity integration for driver verification
+- **Payment Processing**: Stripe integration for rewards marketplace
+- **Deployment**: Docker containerized microservices with multi-stage builds and SSL/TLS support
 
 ### Key Architectural Patterns
 - **Privacy-First Design**: SHA-256 license plate hashing, 100m location rounding, session-based anonymous tracking
 - **Dual-Track Incident System**: Smart workflow adaptation based on incident type (21 types across vehicle/infrastructure categories)
+- **User Authentication**: JWT-based authentication with role-based access control (User, Admin)
+- **Identity Verification**: Stripe Identity integration for driver verification and scoring
+- **Driver Scoring System**: Automated scoring based on incident reports with time-based recovery
+- **Rewards Marketplace**: Stripe-powered rewards system with partner integrations
 - **Offline-First PWA**: Service workers with background sync and local report queuing
 - **Geospatial Architecture**: PostGIS with spatial indexes for heat map aggregation and privacy rounding
+- **Rate Limiting**: Express rate limiting for API protection against abuse
 
 ## Development Commands
 
@@ -72,7 +80,7 @@ curl http://localhost:3001/health
 - **Custom Types**: `incident_type` enum with 21 values across dual-track system
 
 ### Migration System
-Database changes are managed through versioned SQL files in `database/migrations/`. The current schema is v1.1.0 with enhanced incident types. Apply migrations via `database/run_migration.sql` which includes verification queries.
+Database changes are managed through versioned SQL files in `database/migrations/`. The current schema is v2.4.0 with user authentication, identity verification, admin system, private incident management, and driver scoring. Apply migrations via `database/run_migration.sql` which includes verification queries.
 
 ### Spatial Data Handling
 PostGIS functions handle coordinate rounding for privacy (`ST_SnapToGrid` to 100m) and heat map clustering (`ST_ClusterDBSCAN`). Spatial indexes use GIST for efficient geographic queries.
@@ -152,6 +160,33 @@ Backend uses Jest with TypeScript. Frontend uses ESLint for code quality. Integr
 - Database runs with non-root user and restricted permissions
 - Docker containers use security-hardened base images
 
+## Security Implementation
+
+### Authentication & Authorization
+- **JWT Authentication**: Secure token-based authentication with refresh tokens
+- **Role-Based Access Control**: User and Admin roles with appropriate permissions
+- **Email Verification**: Required for account activation and security
+- **Password Security**: Argon2 hashing for secure password storage
+
+### API Security
+- **Rate Limiting**: Express rate limiting (100 requests per 15 minutes) to prevent abuse
+- **Input Validation**: Comprehensive validation using express-validator
+- **CORS Protection**: Configurable CORS origins for secure cross-origin requests
+- **Security Headers**: Helmet.js implementation with CSP and security headers
+- **SQL Injection Prevention**: Parameterized queries throughout the application
+
+### SSL/TLS Configuration
+- **HTTPS Enforced**: HTTP to HTTPS redirect in production
+- **SSL Termination**: Nginx reverse proxy with SSL certificate management
+- **Strong Cipher Suites**: TLS 1.2+ with secure cipher configurations
+- **HSTS Headers**: HTTP Strict Transport Security for enhanced security
+
+### Data Protection
+- **License Plate Anonymization**: SHA-256 hashing with salts for privacy
+- **Location Rounding**: 100m coordinate rounding for location privacy
+- **Environment Variables**: Secure secret management via environment variables
+- **No Hardcoded Secrets**: All sensitive data configured via environment variables
+
 ## Performance Considerations
 
 ### Database Optimization
@@ -176,6 +211,9 @@ Backend uses Jest with TypeScript. Frontend uses ESLint for code quality. Integr
 ### Production Checklist
 - Verify `VITE_MAPBOX_TOKEN` is set for map functionality
 - Ensure `DATABASE_URL` points to production PostgreSQL with PostGIS
-- Configure SSL certificates in `/nginx/ssl/` directory
+- Configure SSL certificates in `/nginx/ssl/` directory (use `nginx/generate-ssl-cert.sh` for development)
 - Set strong `JWT_SECRET` for production security
 - Verify `CORS_ORIGIN` matches production domain exactly
+- Update `.env` files with production secrets (never commit actual secrets)
+- Ensure rate limiting is properly configured
+- Test SSL/TLS termination with nginx reverse proxy

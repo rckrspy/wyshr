@@ -29,7 +29,7 @@ import { showNotification } from '../../store/slices/uiSlice';
 import { addPendingReport } from '../../store/slices/sessionSlice';
 import { useSubmitReportMutation } from '../../store/api/apiSlice';
 import { IncidentType } from '../../types';
-import { getIncidentTypeDisplayName, requiresLicensePlate } from '../../utils/incidentTypeHelpers';
+import { getIncidentTypeDisplayName } from '../../utils/incidentTypeHelpers';
 
 // Removed - using getIncidentTypeDisplayName instead
 
@@ -101,6 +101,7 @@ const ReviewStep: React.FC = () => {
         dispatch(setStep('success'));
       }
     } catch (error) {
+      console.error('Submit error:', error);
       dispatch(
         showNotification({
           type: 'error',

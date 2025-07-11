@@ -37,6 +37,7 @@ export const config = {
     secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
+  jwtSecret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
   aws: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
@@ -60,5 +61,9 @@ export const config = {
   rateLimit: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 100,
+  },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY || '',
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
   },
 };

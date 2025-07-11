@@ -16,12 +16,12 @@ import {
   Warning as WarningIcon,
   ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
-import { IncidentType, IncidentTypeMetadata, IncidentCategory } from '../../types';
+import { IncidentType, IncidentCategory } from '../../types';
 
 interface IncidentTypeSelectorProps {
-  onSelectCategory: (category: 'vehicle' | 'location') => void;
+  onSelectCategory: (category: 'vehicle' | 'location' | null) => void;
   onSelectType: (type: IncidentType) => void;
-  selectedCategory?: 'vehicle' | 'location';
+  selectedCategory?: 'vehicle' | 'location' | null;
 }
 
 // Incident type metadata - this would normally come from an API
@@ -190,7 +190,7 @@ export const IncidentTypeSelector: React.FC<IncidentTypeSelectorProps> = ({
       <Box sx={{ mt: 3 }}>
         <Button
           variant="outlined"
-          onClick={() => onSelectCategory(undefined as any)}
+          onClick={() => onSelectCategory(null)}
           fullWidth
         >
           Back to Categories

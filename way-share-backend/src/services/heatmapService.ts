@@ -34,7 +34,7 @@ export class HeatmapService {
       lat: number;
       lng: number;
       count: string;
-      incident_types: any;
+      incident_types: Record<string, number>;
     }>(query, [interval, incidentType || null]);
 
     // Convert results to HeatMapData format
@@ -149,7 +149,7 @@ export class HeatmapService {
       lat: number;
       lng: number;
       count: string;
-      incident_types: any;
+      incident_types: Record<string, number>;
     }>(query, [bounds.south, bounds.north, bounds.west, bounds.east, aggregationLevel]);
 
     return rows.map((row) => ({

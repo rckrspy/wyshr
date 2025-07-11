@@ -66,7 +66,8 @@ const AboutPage: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 }, py: 4 }}>
+      <Box sx={{ maxWidth: '900px', mx: 'auto' }}>
       <Typography variant="h3" component="h1" gutterBottom>
         About Way-Share
       </Typography>
@@ -176,6 +177,7 @@ const AboutPage: React.FC = () => {
             </AccordionDetails>
           </Accordion>
         ))}
+      </Box>
       </Box>
     </Container>
   );

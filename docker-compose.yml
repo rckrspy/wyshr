@@ -1,87 +1,140 @@
+# Development environment for Way-Share
 version: '3.8'
 
 services:
   # PostgreSQL with PostGIS
   postgres:
-    image: postgis/postgis:14-3.2
-    container_name: wayshare-postgres
+    image: postgis/postgis:15-3.3
+    container_name: wayshare-postgres-dev
     environment:
-      POSTGRES_DB: wayshare
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wayshare_development
+      POSTGRES_USER: wayshare_dev
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password_change_me}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_dev_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/01_init.sql
       - ./database/migrations/:/docker-entrypoint-initdb.d/migrations/
     ports:
       - "5432:5432"
     networks:
-      - wayshare-network
+      - wayshare-dev-network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD-SHELL", "pg_isready -U wayshare_dev -d wayshare_development"]
+      interval: 30s
+      timeout: 10s
       retries: 5
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
 
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: wayshare-redis
+    container_name: wayshare-redis-dev
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-dev_redis_password}
+    volumes:
+      - redis_dev_data:/data
     ports:
       - "6379:6379"
     networks:
-      - wayshare-network
+      - wayshare-dev-network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
       retries: 5
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
 
   # Backend API
   backend:
     build: 
       context: ./way-share-backend
       dockerfile: Dockerfile
-      target: production
-    container_name: wayshare-backend
+      target: development
+    container_name: wayshare-backend-dev
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       DB_HOST: postgres
       REDIS_HOST: redis
       DB_PORT: 5432
-      DB_NAME: wayshare
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/wayshare
+      DB_NAME: wayshare_development
+      DB_USER: wayshare_dev
+      DB_PASSWORD: ${DB_PASSWORD:-dev_password_change_me}
+      DATABASE_URL: postgresql://wayshare_dev:${DB_PASSWORD:-dev_password_change_me}@postgres:5432/wayshare_development
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-dev_redis_password}
       PGSSL: false
-      JWT_SECRET: wayshare-production-jwt-secret-2024
-      CORS_ORIGIN: http://localhost:3000
+      JWT_SECRET: ${JWT_SECRET:-development-jwt-secret-wayshare-2024-very-long-key}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
     ports:
       - "3001:3001"
+    volumes:
+      - ./way-share-backend/src:/app/src:ro
+      - ./way-share-backend/package.json:/app/package.json:ro
+      - backend_node_modules:/app/node_modules
     networks:
-      - wayshare-network
+      - wayshare-dev-network
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const req = http.request({hostname: 'localhost', port: 3001, path: '/health'}, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
 
   # Frontend
   frontend:
     build:
       context: ./way-share-frontend
       dockerfile: Dockerfile
-    container_name: wayshare-frontend
+      target: development
+    container_name: wayshare-frontend-dev
+    environment:
+      VITE_API_URL: http://localhost:3001/api/v1
+      VITE_API_URL_V2: http://localhost:3001/api/v2
+      VITE_ENV: development
     ports:
-      - "3000:80"
+      - "5173:5173"
+    volumes:
+      - ./way-share-frontend/src:/app/src:ro
+      - ./way-share-frontend/public:/app/public:ro
+      - ./way-share-frontend/package.json:/app/package.json:ro
+      - ./way-share-frontend/vite.config.ts:/app/vite.config.ts:ro
+      - frontend_node_modules:/app/node_modules
     networks:
-      - wayshare-network
+      - wayshare-dev-network
     depends_on:
       - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
 
 networks:
-  wayshare-network:
+  wayshare-dev-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
 volumes:
-  postgres_data:
+  postgres_dev_data:
+  redis_dev_data:
+  backend_node_modules:
+  frontend_node_modules:

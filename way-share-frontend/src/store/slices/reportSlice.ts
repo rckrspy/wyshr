@@ -4,7 +4,7 @@ import { Report, IncidentType } from '../../types';
 interface ReportState {
   currentReport: Partial<Report> | null;
   step: 'incidentType' | 'capture' | 'details' | 'review' | 'success';
-  selectedCategory?: 'vehicle' | 'location';
+  selectedCategory?: 'vehicle' | 'location' | null;
 }
 
 const initialState: ReportState = {
@@ -20,7 +20,7 @@ const reportSlice = createSlice({
     startNewReport: (state) => {
       state.currentReport = {
         licensePlate: undefined,
-        incidentType: undefined as any,
+        incidentType: undefined,
         subcategory: undefined,
         location: undefined,
         description: '',
@@ -44,7 +44,7 @@ const reportSlice = createSlice({
         state.currentReport.subcategory = action.payload;
       }
     },
-    setSelectedCategory: (state, action: PayloadAction<'vehicle' | 'location' | undefined>) => {
+    setSelectedCategory: (state, action: PayloadAction<'vehicle' | 'location' | null | undefined>) => {
       state.selectedCategory = action.payload;
     },
     setLocation: (state, action: PayloadAction<{ lat: number; lng: number }>) => {

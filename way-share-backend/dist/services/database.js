@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.db = void 0;
+exports.pool = exports.db = void 0;
 const pg_1 = require("pg");
 const config_1 = require("../config/config");
 class Database {
@@ -70,7 +70,7 @@ class Database {
                 timestamp: result[0].now,
             };
         }
-        catch (error) {
+        catch {
             return {
                 status: 'unhealthy',
                 timestamp: new Date(),
@@ -89,3 +89,5 @@ class Database {
     }
 }
 exports.db = new Database();
+exports.pool = exports.db.getPool();
+exports.default = exports.pool;

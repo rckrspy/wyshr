@@ -189,3 +189,31 @@ INSERT INTO reports (
      ST_SetSRID(ST_MakePoint(-121.8950, 37.3400), 4326),
      round_coordinates(37.3400, -121.8950),
      'Following too closely on highway');
+
+-- Create application role for migrations
+CREATE ROLE wayshare_app WITH LOGIN;
+
+-- Apply Phase 2 migrations
+\echo 'Applying Phase 2 migrations...'
+
+-- Apply v2.0.0 migration for user authentication
+\echo 'Applying v2.0.0 - User Authentication migration...'
+\i /docker-entrypoint-initdb.d/migrations/v2.0.0_user_authentication.sql
+
+-- Apply v2.1.0 migration for identity verification
+\echo 'Applying v2.1.0 - Identity Verification migration...'
+\i /docker-entrypoint-initdb.d/migrations/v2.1.0_identity_verification.sql
+
+-- Apply v2.2.0 migration for admin system
+\echo 'Applying v2.2.0 - Admin System migration...'
+\i /docker-entrypoint-initdb.d/migrations/v2.2.0_admin_system.sql
+
+-- Apply v2.3.0 migration for private incident management
+\echo 'Applying v2.3.0 - Private Incident Management migration...'
+\i /docker-entrypoint-initdb.d/migrations/v2.3.0_private_incident_management.sql
+
+-- Apply v2.4.0 migration for driver score system
+\echo 'Applying v2.4.0 - Driver Score System migration...'
+\i /docker-entrypoint-initdb.d/migrations/v2.4.0_driver_score_system.sql
+
+\echo 'Phase 2 migrations complete!'

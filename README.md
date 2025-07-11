@@ -32,26 +32,89 @@ A privacy-first traffic incident reporting Progressive Web Application (PWA) for
 
 3. **Start services with Docker Compose**
    ```bash
+   # Development environment (containers handle dependencies)
    docker-compose up -d
+   
+   # Or use automated deployment script
+   ./scripts/docker-deployment.sh development deploy
    ```
 
-4. **Install dependencies and run development servers**
+4. **Monitor deployment health**
    ```bash
-   # Backend
-   cd way-share-backend
-   npm install
-   npm run dev
+   # Check all services are healthy
+   ./scripts/health-check.sh
    
-   # Frontend (new terminal)
-   cd way-share-frontend
-   npm install
-   npm run dev
+   # View deployment status
+   ./scripts/docker-deployment.sh development status
    ```
 
 5. **Access the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3001
-   - Health Check: http://localhost:3001/health
+   - Frontend: https://localhost/ (production) or http://localhost:5173 (development)
+   - Backend API: http://localhost:3001 (direct) or https://localhost/api/ (through proxy)
+   - Health Check: https://localhost/health (proxied) or http://localhost:3001/health (direct)
+
+### Production Deployment
+
+#### Prerequisites
+- Docker and Docker Compose installed
+- SSL certificates configured in `nginx/ssl/`
+- Environment variables configured
+
+#### Automated Deployment (Recommended)
+```bash
+# Configure environment variables
+cp .env.example .env
+# Edit .env with your production values
+
+# Deploy to production with health checks and backup
+./scripts/docker-deployment.sh production deploy
+
+# Monitor deployment
+./scripts/docker-deployment.sh production status
+./scripts/docker-deployment.sh production logs
+```
+
+#### Manual Deployment
+```bash
+# Configure environment variables
+cp .env.example .env
+# Edit .env with your production values
+
+# Deploy with Docker Compose
+docker-compose -f docker-compose.prod.yml up -d
+
+# Verify health
+./scripts/health-check.sh docker-compose.prod.yml
+```
+
+#### Production Features
+- **Automated backups** before deployment
+- **Health checks** with automatic rollback
+- **Resource limits** and monitoring
+- **Security hardening** with non-root containers
+- **SSL/TLS termination** with Nginx
+- **Log rotation** and structured logging
+
+### Test Accounts
+
+For development and testing purposes, you can use these pre-configured accounts:
+
+#### Regular User Account
+- **Email**: `user@test.com`
+- **Password**: `TestPass123`
+- **Features**: Access to incident reporting, profile management, vehicle management
+
+#### Admin Account
+- **Email**: `admin@test.com`
+- **Password**: `TestPass123`
+- **Features**: Full admin dashboard, user management, incident review
+
+#### Verified Driver Account
+- **Email**: `driver@test.com`
+- **Password**: `TestPass123`
+- **Features**: Identity verified, driver score access, rewards marketplace
+
+**Note**: These accounts are for development/testing only. Create new accounts for production use.
 
 ## 🏗️ Architecture
 
@@ -86,8 +149,37 @@ way-share/
 
 ## 📱 Features
 
-### ✅ Implemented (v1.1.0 Production Ready)
-- **Enhanced anonymous incident reporting** with 21 incident types across two tracks:
+### ✅ Implemented (v2.0.0 - Full Authentication System)
+- **User Authentication System**
+  - JWT-based authentication with refresh tokens
+  - Email verification for new accounts
+  - Password reset functionality
+  - Secure HTTP-only cookie management
+  
+- **User Management Features**
+  - User profiles and account management
+  - Vehicle registration and verification
+  - Private incident tracking and management
+  - Identity verification via Stripe Identity
+  
+- **Driver Score System**
+  - Automated scoring based on incident reports
+  - Time-based score recovery
+  - Milestones and achievements
+  - Score breakdown and history
+  
+- **Rewards Marketplace**
+  - Partner rewards and discounts
+  - Lead generation opportunities
+  - Stripe-powered secure transactions
+  
+- **Admin Dashboard**
+  - User management and oversight
+  - Vehicle verification review
+  - Incident dispute resolution
+  - System analytics and monitoring
+
+- **Enhanced Incident Reporting** with 21 incident types across two tracks:
   - **Vehicle-specific incidents** (13 types): Require license plate identification
   - **Location-based hazards** (8 types): Infrastructure and road condition reports
 - **Smart reporting workflow** that adapts based on incident type selection
@@ -105,35 +197,51 @@ way-share/
 ### 🔒 Privacy Protection
 - Irreversible SHA-256 license plate hashing
 - Location rounding to 100m radius
-- No user accounts required
-- Session-based anonymous tracking
+- Optional anonymous reporting (no account required for basic reports)
+- Secure authentication with encrypted passwords
+- Session-based tracking with privacy controls
 - Automatic EXIF stripping (when media upload is enabled)
 
 ### 🧪 Security Features
-- HTTPS enforced in production
+- HTTPS enforced in production with SSL/TLS termination
+- JWT authentication with secure refresh tokens
+- HTTP-only cookies for enhanced security
+- Argon2 password hashing
 - Content Security Policy headers
-- Rate limiting on API endpoints
-- Input validation and sanitization
+- Rate limiting on API endpoints (100 requests per 15 minutes)
+- Comprehensive input validation and sanitization
+- SQL injection prevention with parameterized queries
 - Non-root container execution
+- Environment-based secret management
 
 ## 📊 Current Status
 
-### ✅ Production Ready (v1.1.0)
+### ✅ Production Ready (v2.5.2 - Consolidated Release)
+- ✅ **User authentication system** with JWT tokens and secure session management
 - ✅ **Enhanced incident types system** with 21 categories and dual-track reporting
-- ✅ **Database migrations** applied and operational with PostgreSQL + PostGIS
-- ✅ **Frontend builds successfully** with React 19 + TypeScript + Material-UI
+- ✅ **Driver scoring system** with automated calculations and time-based recovery
+- ✅ **Rewards marketplace** integrated with Stripe for secure transactions
+- ✅ **Admin dashboard** for user management and incident oversight
+- ✅ **Identity verification** via Stripe Identity integration
+- ✅ **Database migrations** v2.5.0 applied with full schema implementation
+- ✅ **Frontend builds successfully** with React 18 + TypeScript + Material-UI
 - ✅ **Backend API** with Express + TypeScript and comprehensive validation
 - ✅ **Docker deployment** optimized for production with health checks
 - ✅ **Progressive Web App** functionality with offline support
 - ✅ **Real-time heat map** with MapLibre GL integration
 - ✅ **Privacy protection** with SHA-256 hashing and geographic rounding
 - ✅ **Navigation improvements** with state preservation and accessibility
+- ✅ **Repository consolidated** with streamlined documentation and clean deployment state
 
 ### ⚠️ Configuration Needed for Production
 - Mapbox API token for map functionality
-- Production database instance
+- Production PostgreSQL database with PostGIS extension
 - SSL certificates for HTTPS
-- AWS S3 for media uploads (optional for MVP)
+- JWT secret key for authentication
+- Stripe API keys for identity verification and payments
+- SMTP configuration for email verification
+- AWS S3 for media uploads (optional)
+- Redis instance for caching and sessions
 - Environment variables for production
 
 ## 🛠️ Development
@@ -191,7 +299,19 @@ In Railway dashboard, go to Variables tab and add:
 NODE_ENV=production
 DATABASE_URL=postgresql://postgres:password@hostname:5432/railway
 JWT_SECRET=your-strong-random-secret-here
+JWT_REFRESH_SECRET=another-strong-random-secret
 CORS_ORIGIN=https://your-app-name.railway.app
+
+# Email Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+EMAIL_FROM=noreply@way-share.com
+
+# Stripe Integration (optional for MVP)
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
 ```
 
 #### Step 4: Deploy Backend
@@ -206,8 +326,10 @@ railway up    # Deploy backend
 # In way-share-frontend directory
 # First, set frontend environment variables in Railway:
 VITE_API_URL=https://your-backend.railway.app/api/v1
+VITE_API_URL_V2=https://your-backend.railway.app/api/v2
 VITE_MAPBOX_TOKEN=your-mapbox-token
 VITE_ENV=production
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your-stripe-publishable-key
 
 railway up    # Deploy frontend
 ```
@@ -312,15 +434,40 @@ sudo crontab -e
 ```bash
 NODE_ENV=production
 DATABASE_URL=postgresql://user:pass@host:5432/db
-JWT_SECRET=your-strong-secret
+JWT_SECRET=your-strong-random-secret-here
+JWT_REFRESH_SECRET=another-strong-random-secret
 CORS_ORIGIN=https://your-domain.com
+
+# Email Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+EMAIL_FROM=noreply@way-share.com
+
+# Stripe Integration
+STRIPE_SECRET_KEY=sk_live_your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+
+# Redis (optional, defaults to local)
+REDIS_URL=redis://localhost:6379
+
+# AWS S3 (optional)
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_BUCKET_NAME=way-share-media
+AWS_REGION=us-west-2
 ```
 
 #### Frontend (.env)
 ```bash
 VITE_API_URL=https://api.your-domain.com/api/v1
+VITE_API_URL_V2=https://api.your-domain.com/api/v2
 VITE_MAPBOX_TOKEN=your-mapbox-token
 VITE_ENV=production
+
+# Stripe Publishable Key
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your-stripe-publishable-key
 ```
 
 ### Post-Deployment Verification
@@ -366,6 +513,47 @@ curl https://your-api-domain.com/api/v1/heatmap/data
 5. Test offline functionality
 
 ### Troubleshooting
+
+#### Docker Deployment Issues
+
+**Services Won't Start**
+```bash
+# Check service logs
+./scripts/docker-deployment.sh development logs
+
+# Check individual service health
+docker-compose ps
+docker-compose logs [service-name]
+
+# Rebuild containers
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+**Health Checks Failing**
+```bash
+# Run detailed health checks
+./scripts/health-check.sh test
+
+# Check specific service health
+docker inspect --format='{{.State.Health.Status}}' [container-name]
+
+# View health check logs
+docker inspect --format='{{range .State.Health.Log}}{{.Output}}{{end}}' [container-name]
+```
+
+**Database Connection Issues**
+```bash
+# Check database connectivity
+docker exec wayshare-postgres-dev pg_isready -U wayshare_dev
+
+# Test database connection from backend
+docker exec wayshare-backend-dev node -e "const db = require('./dist/services/database'); db.testConnection();"
+
+# Add PostGIS extension manually if needed
+docker exec wayshare-postgres-dev psql -U wayshare_dev -d wayshare_development -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+```
 
 #### Common Issues
 
@@ -443,15 +631,6 @@ psql $DATABASE_URL -c "SELECT count(*) FROM pg_stat_activity;"
 - **[Business Strategy](docs/Way-Share-Business-Strategy.md)** - Market positioning and competitive analysis
 - **[Product Specification](docs/Way-Share-Product-Specification.md)** - Complete feature requirements
 
-### For Developers
-- **[Technical Guide](docs/architecture/Way-Share-Technical-Guide.md)** - Architecture and implementation details
-- **[Development Plan](docs/development/Way-Share-Development-Plan.md)** - Implementation roadmap
-- **[MVP Definition](docs/Way-Share-MVP-Definition.md)** - Initial launch scope
-
-### Deployment & Operations
-- **[Deployment Issues Tracker](docs/deployment/DEPLOYMENT-ISSUES-TRACKER.md)** - Known issues and solutions
-- **[Documentation Index](docs/README.md)** - Complete documentation directory
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -478,7 +657,10 @@ This project is licensed under the MIT License.
 
 ---
 
-**Status**: Production Ready v1.1.0 - Enhanced Incident Types System  
-**Last Updated**: July 8, 2025  
-**Next Major Release**: Q1 2025 - Advanced Analytics & Multi-City Expansion  
+**Status**: Production Ready v2.5.2 - Display Issues Fixed & Deployed  
+**Last Updated**: July 10, 2025  
+**Major Features**: User accounts, driver scoring, rewards marketplace, admin dashboard, layout standardization  
+**Repository State**: Production-deployed with layout improvements and Docker containerization  
+**Recent Updates**: Fixed Grid standardization, viewport calculations, and mobile display issues  
+**Next Major Release**: Q1 2026 - Advanced Analytics & Multi-City Expansion  
 Built with ❤️ for safer San Jose streets

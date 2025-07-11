@@ -104,6 +104,7 @@ const CaptureStep: React.FC = () => {
         setIsCameraActive(true);
       }
     } catch (error) {
+      console.error('Camera access error:', error);
       dispatch(
         showNotification({
           type: 'error',

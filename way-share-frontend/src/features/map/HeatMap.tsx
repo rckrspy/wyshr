@@ -256,8 +256,8 @@ const HeatMap: React.FC<HeatMapProps> = ({ data }) => {
       sx={{
         width: '100%',
         height: '100%',
-        minHeight: 400,
-        maxHeight: 'calc(100vh - 300px)',
+        flexGrow: 1,
+        minHeight: 0,
         position: 'relative',
       }}
     />
