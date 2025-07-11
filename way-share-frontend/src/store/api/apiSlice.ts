@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../store';
 import { Report, HeatMapData, IncidentStats, ApiResponse } from '../../types';
 
-const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+const baseUrl = import.meta.env.VITE_API_URL || 'https://localhost/api/v1';
 
 export const api = createApi({
   reducerPath: 'api',
