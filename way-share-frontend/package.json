@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "preview": "vite preview"
   },
   "dependencies": {
